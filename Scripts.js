@@ -1,5 +1,7 @@
-const API_KEY = "2bc12989f7de43a791fe790c84343846";
-const url = "https://newsapi.org/v2/everything?q=";
+const API_KEY = "3802ba8ef534d9856493a9d495404600";
+
+const url = "https://gnews.io/api/v4/top-headlines?category=general&apikey=";
+
 // responsive navbar
 const mobile_nav = document.querySelector(".mobile-navbar-btn");
 const nav_header = document.querySelector("header");
@@ -12,17 +14,17 @@ const toggleNavbar = () => {
 mobile_nav.addEventListener("click", () => toggleNavbar());
 
 // news fetching
-window.addEventListener("load", () => fetchNews("India"));
+window.addEventListener("load", () => fetchNews("general"));
 
 function reload() {
     window.location.reload();
 }
 
-async function fetchNews(query) {
-    const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
+async function fetchNews(category) {
+    const res = await fetch(`https://gnews.io/api/v4/top-headlines?category=${category}&apikey=${API_KEY}&lang=en`);
     const data = await res.json();
-    bindData(data.articles);
-    console.log(data.articles)
+    bindData(data.articles)
+    console.log(data)
 }
 
 function bindData(articles) {
@@ -32,7 +34,7 @@ function bindData(articles) {
     cardsContainer.innerHTML = "";
 
     articles.forEach((article) => {
-        if (!article.urlToImage) return;
+        if (!article.image) return;
         const cardClone = newsCardTemplate.content.cloneNode(true);
         fillDataInCard(cardClone, article);
         cardsContainer.appendChild(cardClone);
@@ -45,7 +47,7 @@ function fillDataInCard(cardClone, article) {
     const newsSource = cardClone.querySelector("#news-source");
     const newsDesc = cardClone.querySelector("#news-desc");
 
-    newsImg.src = article.urlToImage;
+    newsImg.src = article.image;
     newsTitle.innerHTML = article.title;
     newsDesc.innerHTML = article.description;
 
@@ -72,11 +74,16 @@ function onNavItemClick(id) {
 
 const searchButton = document.getElementById("search-button");
 const searchText = document.getElementById("search-text");
-
+async function fetchSearchNews(query){
+    const res = await fetch(`https://gnews.io/api/v4/search?q=${query}&apikey=${API_KEY}`);
+    const data = await res.json();
+    bindData(data.articles)
+    console.log(data)
+}
 function searchNews(){
     const query = searchText.value;
     if (!query) return;
-    fetchNews(query);
+    fetchSearchNews(query);
     curSelectedNav?.classList.remove("active");
     curSelectedNav = null;
 }
@@ -84,4 +91,6 @@ searchText.addEventListener("keypress", function(event){
     if(event.key === "Enter")
     searchNews()
 })
-searchButton.addEventListener("click", searchNews())
+searchButton.addEventListener("click", function(){
+    searchNews()
+})
